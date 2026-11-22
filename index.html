@@ -1,13 +1,53 @@
-Loading Miami...
-NEEL MIAMI UNDERWORLD V0.2 FIXED
-$ 500
-Mission 1: Meet Jason
-Find Jason near the red car.
-0 km/h
-JUMPACTION PHONECAM
-NEEL'S PHONE✕
-CONTACTS　 GPS　 MISSIONS
 
-GPS: Find Jason near the red car.
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="theme-color" content="#101827">
+  <title>NEEL - MIAMI UNDERWORLD</title>
+  <link rel="stylesheet" href="./style.css">
+</head>
+<body>
 
-Explore the city and find Jason.
+  <div id="loading">Loading Miami...</div>
+
+  <div id="hud">
+    <header>
+      NEEL MIAMI UNDERWORLD
+      <span>V0.2 FIXED</span>
+    </header>
+
+    <div class="mission">
+      <strong>$ <span id="cash">500</span></strong>
+      <br>
+      <b>Mission 1: Meet Jason</b>
+      <br>
+      <small>Find Jason near the red car.</small>
+    </div>
+
+    <div id="speed">0 km/h</div>
+
+    <div class="controls">
+      <button id="jump">JUMP</button>
+      <button id="action">ACTION</button>
+      <button id="phone">PHONE</button>
+      <button id="camera">CAM</button>
+    </div>
+
+    <div id="phonePanel" class="hidden">
+      <b>NEEL'S PHONE</b>
+      <button id="closePhone">✕</button>
+      <p>CONTACTS　 GPS　 MISSIONS</p>
+      <p id="phoneText">GPS: Find Jason near the red car.</p>
+    </div>
+
+    <div id="message">
+      Explore the city and find Jason.
+    </div>
+  </div>
+
+  <script type="module" src="./game.js"></script>
+
+</body>
+</html>
