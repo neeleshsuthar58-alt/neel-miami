@@ -1,21 +1,17 @@
-NEEL – MIAMI UNDERWORLD Mobile v0.2
-This update extends the existing browser game source while retaining the same GitHub Pages deployment method.
+NEEL – MIAMI UNDERWORLD (V0.2 FIXED)
+A small mobile browser prototype. It is not a full GTA-scale game or an APK.
 
-Added in v0.2
-Expanded Miami-inspired city blockout, beach promenade, shop signs and palm trees
-Improved placeholder character models
-Jason follow companion and proximity dialogue
-Drivable red car with steering, acceleration, exit/enter and speed display
-Basic pedestrian ambience
-Basic police pursuit and wanted-star display (prototype behaviour)
-Smartphone panel with contacts, GPS objective and mission list
-Three starter story objectives with rewards
-Touch joystick, jump, action, phone and camera controls
-Upload update
-Replace the existing index.html, game.js, style.css, and README.md in your GitHub repository with these versions. Keep manifest.webmanifest unchanged. Commit directly to main. GitHub Pages will redeploy automatically.
+Run
+Host the files on GitHub Pages or another HTTPS static host. The game imports Three.js from jsDelivr, so an internet connection is required.
 
-Play
-https://neeleshsuthar58-alt.github.io/neel-miami/
-
-Limitations
-This is a small browser prototype, not a GTA-scale game. Models are procedural placeholders; city geometry is generated from simple meshes; police, pedestrians, missions and vehicle physics are simplified. It requires internet access for the Three.js module hosted on jsDelivr. It is not an Android APK.
+Controls
+Touch joystick: move / steer
+ACTION: enter or exit the red car; talk to Jason when nearby
+JUMP: jump
+CAM: switch camera
+PHONE: open phone panel
+Files
+index.html loads the interface and game.js
+game.js creates the 3D scene and controls
+style.css styles the mobile HUD
+manifest.webmanifest is optional for this prototype
