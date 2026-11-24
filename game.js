@@ -1,6 +1,4 @@
-from pathlib import Path
-
-code = r"""import * as THREE from 'https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js';
+import * as THREE from 'https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js';
 
 const scene = new THREE.Scene();
 scene.background = new THREE.Color(0x86c9e8);
@@ -408,8 +406,3 @@ addEventListener('resize', () => {
   camera.updateProjectionMatrix();
   renderer.setSize(innerWidth, innerHeight);
 });
-"""
-
-path = Path("/mnt/data/game.js")
-path.write_text(code, encoding="utf-8")
-print(f"Created complete game.js: {path} ({len(code.splitlines())} lines)")
