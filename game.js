@@ -1,141 +1,22 @@
 import * as THREE from 'https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js';
-
-const scene = new THREE.Scene();
-scene.background = new THREE.Color(0x87c9e8);
-scene.fog = new THREE.Fog(0x87c9e8, 70, 240);
-
-const camera = new THREE.PerspectiveCamera(65, innerWidth / innerHeight, 0.1, 500);
-const renderer = new THREE.WebGLRenderer({antialias:true});
-renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
-renderer.setSize(innerWidth, innerHeight);
-renderer.shadowMap.enabled = true;
-document.body.appendChild(renderer.domElement);
-renderer.domElement.id = 'gameCanvas';
-
-scene.add(new THREE.HemisphereLight(0xffffff, 0x526070, 2));
-const sun = new THREE.DirectionalLight(0xffffff, 2.1);
-sun.position.set(-35, 70, 35);
-sun.castShadow = true;
-scene.add(sun);
-
-const mat = (color) => new THREE.MeshStandardMaterial({color, roughness:0.85});
-const ground = new THREE.Mesh(new THREE.PlaneGeometry(260,260), mat(0x69a96c));
-ground.rotation.x = -Math.PI/2; ground.position.y = -0.06; ground.receiveShadow = true; scene.add(ground);
-
-const roadMat = mat(0x343a40);
-function road(x,z,w,d){
- const m=new THREE.Mesh(new THREE.BoxGeometry(w,0.08,d),roadMat);
- m.position.set(x,0,z); scene.add(m);
-}
-road(0,0,220,13); road(0,-42,220,12); road(0,42,220,12);
-road(-48,0,12,110); road(48,0,12,110);
-const lineMat = new THREE.MeshBasicMaterial({color:0xf5e6a8});
-for(let x=-100;x<105;x+=12){const l=new THREE.Mesh(new THREE.BoxGeometry(6,.025,.18),lineMat);l.position.set(x,.06,0);scene.add(l);}
-
-function building(x,z,w,h,d,color){
- const b=new THREE.Mesh(new THREE.BoxGeometry(w,h,d),mat(color));
- b.position.set(x,h/2,z); b.castShadow=true;b.receiveShadow=true;scene.add(b);
- const winMat=new THREE.MeshStandardMaterial({color:0x9ed9e8,emissive:0x23495a});
- for(let y=2.5;y<h-1;y+=3) for(let xx=-w/2+1.3;xx<w/2-0.5;xx+=2.4){
-  const win=new THREE.Mesh(new THREE.BoxGeometry(.9,1.1,.08),winMat);
-  win.position.set(x+xx,y,z+d/2+.05);scene.add(win);
- }
-}
-const colors=[0xe7b77d,0xf0d2a2,0xd6a4a0,0xb7c7d8,0xe2dfc8];
-for(let i=0;i<18;i++){
- const x=-95+(i%9)*24, z=i<9?-65:65;
- building(x,z,15,12+(i%4)*5,18,colors[i%colors.length]);
-}
-const ocean=new THREE.Mesh(new THREE.PlaneGeometry(260,80),mat(0x168fbd));
-ocean.rotation.x=-Math.PI/2;ocean.position.set(0,-.02,-145);scene.add(ocean);
-for(let i=0;i<18;i++){
- const x=-105+i*12;
- const trunk=new THREE.Mesh(new THREE.CylinderGeometry(.22,.35,4,7),mat(0x795334));
- trunk.position.set(x,2,-17-(i%3)*3);scene.add(trunk);
- const leaves=new THREE.Mesh(new THREE.SphereGeometry(2.1,8,6),mat(0x23834a));
- leaves.position.set(x,4.5,-17-(i%3)*3);leaves.scale.set(1.2,.55,1.2);scene.add(leaves);
-}
-
-function makePerson(color){
- const g=new THREE.Group();
- const body=new THREE.Mesh(new THREE.CapsuleGeometry(.48,.9,4,8),mat(color));body.position.y=1.05;body.castShadow=true;g.add(body);
- const head=new THREE.Mesh(new THREE.SphereGeometry(.32,12,10),mat(0xd7a77d));head.position.y=1.95;g.add(head);
- return g;
-}
-const player=makePerson(0x2457bd);player.position.set(-12,0,8);scene.add(player);
-const jason=makePerson(0x30343b);jason.position.set(12,0,5);scene.add(jason);
-
-const car=new THREE.Group();
-const carBody=new THREE.Mesh(new THREE.BoxGeometry(3.4,1,6),mat(0xc82032));carBody.position.y=.85;carBody.castShadow=true;car.add(carBody);
-const cabin=new THREE.Mesh(new THREE.BoxGeometry(2.6,.9,2.8),mat(0x9dc8d8));cabin.position.set(0,1.55,-.3);car.add(cabin);
-for(const x of [-1.35,1.35]) for(const z of [-1.9,1.9]){
- const wheel=new THREE.Mesh(new THREE.CylinderGeometry(.48,.48,.32,12),mat(0x151515));
- wheel.rotation.z=Math.PI/2;wheel.position.set(x,.48,z);car.add(wheel);
-}
-car.position.set(5,0,0);scene.add(car);
-
-let keys={}, driving=false, speed=0, yaw=0, cameraMode=0, cash=500;
-addEventListener('keydown',e=>keys[e.key.toLowerCase()]=true);
-addEventListener('keyup',e=>keys[e.key.toLowerCase()]=false);
-const buttons=['jump','action','phone','camera'];
-for(const id of buttons){document.getElementById(id).addEventListener('click',()=>handleButton(id));}
-function handleButton(id){
- if(id==='phone') document.getElementById('phonePanel').classList.toggle('hidden');
- if(id==='closePhone') document.getElementById('phonePanel').classList.add('hidden');
- if(id==='camera') cameraMode=(cameraMode+1)%2;
- if(id==='jump' && !driving) player.position.y=1.3;
- if(id==='action'){
-  const dist=player.position.distanceTo(car.position);
-  if(!driving && dist<5){driving=true;document.getElementById('message').textContent='You entered the red car. Use the joystick or arrow keys to drive.';}
-  else if(driving){driving=false;player.position.copy(car.position).add(new THREE.Vector3(3,0,0));document.getElementById('message').textContent='You exited the car.';}
-  else if(player.position.distanceTo(jason.position)<5){document.getElementById('message').textContent='Jason: Neel, we need to explore the city.';document.getElementById('cash').textContent=cash;}
- }
-}
-document.getElementById('closePhone').addEventListener('click',()=>document.getElementById('phonePanel').classList.add('hidden'));
-
-let joy={x:0,y:0};
-const joyEl=document.createElement('div');joyEl.id='joystick';joyEl.innerHTML='<div></div>';document.body.appendChild(joyEl);
-let active=false;
-joyEl.addEventListener('pointerdown',e=>{active=true;joyEl.setPointerCapture(e.pointerId);moveJoy(e);});
-joyEl.addEventListener('pointermove',e=>{if(active)moveJoy(e);});
-joyEl.addEventListener('pointerup',()=>{active=false;joy.x=0;joy.y=0;joyEl.firstElementChild.style.transform='translate(0,0)';});
-function moveJoy(e){const r=joyEl.getBoundingClientRect();const dx=e.clientX-(r.left+r.width/2),dy=e.clientY-(r.top+r.height/2);const len=Math.max(1,Math.hypot(dx,dy));joy.x=dx/Math.max(55,len);joy.y=dy/Math.max(55,len);joyEl.firstElementChild.style.transform=`translate(${joy.x*32}px,${joy.y*32}px)`;}
-
-const clock=new THREE.Clock();
-function animate(){
- requestAnimationFrame(animate);
- const dt=Math.min(clock.getDelta(),.04);
- let forward=(keys.w||keys.arrowup?1:0)-(keys.s||keys.arrowdown?1:0)-joy.y;
- let turn=(keys.d||keys.arrowright?1:0)-(keys.a||keys.arrowleft?1:0)+joy.x;
- if(driving){
-  yaw-=turn*dt*1.8;car.rotation.y=yaw;
-  speed=THREE.MathUtils.damp(speed,forward*18,3,dt);
-  car.position.x+=Math.sin(yaw)*speed*dt;car.position.z+=Math.cos(yaw)*speed*dt;
-  player.position.copy(car.position);
-  document.getElementById('speed').textContent=Math.round(Math.abs(speed)*3)+' km/h';
- }else{
-  player.rotation.y=Math.atan2(turn,forward||.0001);
-  player.position.x+=turn*dt*5;
-  player.position.z+=forward*dt*7;
-  player.position.y=Math.max(0,player.position.y-dt*3);
-  speed=0;document.getElementById('speed').textContent='0 km/h';
- }
- if(jason.position.distanceTo(player.position)>4){
-  const dir=player.position.clone().sub(jason.position).normalize();
-  jason.position.add(dir.multiplyScalar(dt*2.3));
-  jason.rotation.y=Math.atan2(dir.x,dir.z);
- }
- const target=driving?car:player;
- if(cameraMode===0){
-  const offset=new THREE.Vector3(0,8,13).applyAxisAngle(new THREE.Vector3(0,1,0),target.rotation.y);
-  camera.position.lerp(target.position.clone().add(offset),.12);
-  camera.lookAt(target.position.clone().add(new THREE.Vector3(0,1,0)));
- }else{
-  camera.position.lerp(target.position.clone().add(new THREE.Vector3(0,2,0)),.18);
-  camera.rotation.set(0,target.rotation.y,0);
- }
- renderer.render(scene,camera);
-}
-animate();
-document.getElementById('loading').style.display='none';
-addEventListener('resize',()=>{camera.aspect=innerWidth/innerHeight;camera.updateProjectionMatrix();renderer.setSize(innerWidth,innerHeight);});
+const scene=new THREE.Scene();scene.background=new THREE.Color(0x86c9e8);scene.fog=new THREE.Fog(0x86c9e8,150,520);
+const camera=new THREE.PerspectiveCamera(65,innerWidth/innerHeight,.1,900);const renderer=new THREE.WebGLRenderer({antialias:true});renderer.setPixelRatio(Math.min(devicePixelRatio,1.7));renderer.setSize(innerWidth,innerHeight);renderer.shadowMap.enabled=true;document.body.appendChild(renderer.domElement);renderer.domElement.id='gameCanvas';
+scene.add(new THREE.HemisphereLight(0xffffff,0x58606a,2));const sun=new THREE.DirectionalLight(0xffffff,2);sun.position.set(-70,110,60);sun.castShadow=true;scene.add(sun);
+const mat=c=>new THREE.MeshStandardMaterial({color:c,roughness:.82});const ground=new THREE.Mesh(new THREE.PlaneGeometry(900,900),mat(0x75a96c));ground.rotation.x=-Math.PI/2;ground.position.y=-.08;ground.receiveShadow=true;scene.add(ground);
+const roadMat=mat(0x343a40),mark=mat(0xf5e6a8);function road(x,z,w,d){let m=new THREE.Mesh(new THREE.BoxGeometry(w,.08,d),roadMat);m.position.set(x,0,z);scene.add(m)}
+for(let z=-240;z<=240;z+=80)road(0,z,620,14);for(let x=-280;x<=280;x+=80)road(x,0,14,520);
+for(let z=-240;z<=240;z+=80)for(let x=-300;x<300;x+=18){let l=new THREE.Mesh(new THREE.BoxGeometry(7,.025,.18),mark);l.position.set(x,.055,z);scene.add(l)}
+const colors=[0xe6b77e,0xf0d2a2,0xd6a4a0,0xb7c7d8,0xe2dfc8,0xc5d6b5,0xd9c0e8];for(let z=-205;z<=205;z+=80)for(let x=-245;x<=245;x+=80){if(Math.abs(x)<55&&Math.abs(z)<55)continue;let h=15+(Math.abs(x*3+z*7)%5)*5,b=new THREE.Mesh(new THREE.BoxGeometry(43,h,48),mat(colors[Math.abs(Math.floor(x+z))%colors.length]));b.position.set(x,h/2,z);b.castShadow=true;b.receiveShadow=true;scene.add(b)}
+let beach=new THREE.Mesh(new THREE.PlaneGeometry(620,55),mat(0xe7d49c));beach.rotation.x=-Math.PI/2;beach.position.set(0,-.025,-285);scene.add(beach);let ocean=new THREE.Mesh(new THREE.PlaneGeometry(620,230),mat(0x168fbd));ocean.rotation.x=-Math.PI/2;ocean.position.set(0,-.03,-425);scene.add(ocean);
+for(let i=0;i<40;i++){let x=-285+i*14,t=new THREE.Mesh(new THREE.CylinderGeometry(.22,.34,4.4,7),mat(0x795334));t.position.set(x,2.2,-245-(i%3)*7);scene.add(t);let f=new THREE.Mesh(new THREE.SphereGeometry(2.2,8,6),mat(0x23834a));f.position.set(x,4.8,-245-(i%3)*7);f.scale.set(1.2,.55,1.2);scene.add(f)}
+function character(shirtColor,pantsColor,hairColor){let g=new THREE.Group(),skin=mat(0xc98f68),shirt=mat(shirtColor),pants=mat(pantsColor),hair=mat(hairColor),shoe=mat(0x202329);function add(geo,m,x,y,z){let o=new THREE.Mesh(geo,m);o.position.set(x,y,z);g.add(o);return o}add(new THREE.BoxGeometry(.95,1.05,.48),shirt,0,1.55,0);add(new THREE.CylinderGeometry(.16,.17,.22,8),skin,0,2.18,0);add(new THREE.SphereGeometry(.38,16,12),skin,0,2.52,0);let cap=add(new THREE.SphereGeometry(.39,12,8,0,Math.PI*2,0,Math.PI*.52),hair,0,2.62,-.015);for(let x of [-.14,.14]){add(new THREE.SphereGeometry(.045,8,6),mat(0xffffff),x,2.55,-.342);add(new THREE.SphereGeometry(.022,8,6),mat(0x171717),x,2.55,-.38)}add(new THREE.SphereGeometry(.055,8,6),skin,0,2.44,-.37);add(new THREE.BoxGeometry(.13,.025,.025),mat(0x713f36),0,2.34,-.36);let arms=[],legs=[];for(let s of [-1,1]){let a=new THREE.Group();a.position.set(s*.59,1.88,0);let u=new THREE.Mesh(new THREE.CylinderGeometry(.13,.15,.65,8),shirt);u.position.y=-.28;a.add(u);let fore=new THREE.Mesh(new THREE.CylinderGeometry(.105,.12,.55,8),skin);fore.position.y=-.83;a.add(fore);let hand=new THREE.Mesh(new THREE.SphereGeometry(.13,8,6),skin);hand.position.y=-1.13;a.add(hand);g.add(a);arms.push(a);let leg=new THREE.Group();leg.position.set(s*.25,1.02,0);let thigh=new THREE.Mesh(new THREE.CylinderGeometry(.17,.19,.62,8),pants);thigh.position.y=-.28;leg.add(thigh);let shin=new THREE.Mesh(new THREE.CylinderGeometry(.13,.15,.55,8),pants);shin.position.y=-.83;leg.add(shin);let foot=new THREE.Mesh(new THREE.BoxGeometry(.25,.16,.42),shoe);foot.position.set(0,-1.15,-.1);leg.add(foot);g.add(leg);legs.push(leg)}g.userData={arms,legs};return g}
+const player=character(0x2457bd,0x252b36,0x24201d);player.position.set(-15,0,18);scene.add(player);const jason=character(0x30343b,0x414b5b,0x171717);jason.position.set(13,0,10);scene.add(jason);
+const car=new THREE.Group(),red=mat(0xc82032),glass=mat(0x8fc7d8),rubber=mat(0x151515);let body=new THREE.Mesh(new THREE.BoxGeometry(3.8,1.05,7),red);body.position.y=.9;car.add(body);let cabin=new THREE.Mesh(new THREE.BoxGeometry(3,1,3.3),glass);cabin.position.set(0,1.62,-.35);car.add(cabin);for(let x of [-1.5,1.5])for(let z of [-2.25,2.25]){let w=new THREE.Mesh(new THREE.CylinderGeometry(.52,.52,.36,14),rubber);w.rotation.z=Math.PI/2;w.position.set(x,.48,z);car.add(w)}for(let x of [-.72,.72]){let s=new THREE.Mesh(new THREE.BoxGeometry(.85,.55,.9),mat(0x252a32));s.position.set(x,1.15,.1);car.add(s)}car.position.set(5,0,0);scene.add(car);
+const phone=new THREE.Group(),phoneBody=new THREE.Mesh(new THREE.BoxGeometry(.22,.38,.045),mat(0x111820)),phoneScreen=new THREE.Mesh(new THREE.BoxGeometry(.18,.31,.012),mat(0x3c9bd0));phone.add(phoneBody,phoneScreen);phoneScreen.position.z=-.03;phone.position.set(.7,1.85,-.28);phone.rotation.x=-.25;player.add(phone);phone.visible=false;
+let keys={},driving=false,phoneOpen=false,speed=0,yaw=0,cameraMode=0,jasonInCar=false;addEventListener('keydown',e=>keys[e.key.toLowerCase()]=true);addEventListener('keyup',e=>keys[e.key.toLowerCase()]=false);const el=id=>document.getElementById(id);function msg(t){el('message').textContent=t}
+function action(id){if(id==='phone'){phoneOpen=!phoneOpen;phone.visible=phoneOpen&&!driving;el('phonePanel').classList.toggle('hidden',!phoneOpen)}if(id==='closePhone'){phoneOpen=false;phone.visible=false;el('phonePanel').classList.add('hidden')}if(id==='camera')cameraMode=(cameraMode+1)%2;if(id==='jump'&&!driving)player.position.y=1.2;if(id==='action'){if(!driving&&player.position.distanceTo(car.position)<7){driving=true;phone.visible=false;phoneOpen=false;el('phonePanel').classList.add('hidden');msg('Neel is driving. Jason takes the passenger seat.');if(!jasonInCar){jasonInCar=true;jason.visible=false}}else if(driving){driving=false;player.position.copy(car.position).add(new THREE.Vector3(3.2,0,0));if(jasonInCar){jason.position.copy(car.position).add(new THREE.Vector3(-.8,0,-.2));jason.visible=true;jasonInCar=false}msg('You exited the car. Jason got out too.')}else if(player.position.distanceTo(jason.position)<7)msg('Jason: Come on, Neel. Let us explore Miami.');else msg('Move closer to Jason or the red car.')}}
+['jump','action','phone','camera','closePhone'].forEach(id=>el(id).addEventListener('click',()=>action(id)));
+let joy={x:0,y:0};const joyEl=document.createElement('div');joyEl.id='joystick';joyEl.innerHTML='<div></div>';document.body.appendChild(joyEl);let active=false;joyEl.addEventListener('pointerdown',e=>{active=true;joyEl.setPointerCapture(e.pointerId);moveJoy(e)});joyEl.addEventListener('pointermove',e=>{if(active)moveJoy(e)});function release(){active=false;joy.x=0;joy.y=0;joyEl.firstElementChild.style.transform='translate(0,0)'}joyEl.addEventListener('pointerup',release);joyEl.addEventListener('pointercancel',release);function moveJoy(e){let r=joyEl.getBoundingClientRect(),dx=e.clientX-r.left-r.width/2,dy=e.clientY-r.top-r.height/2,len=Math.max(1,Math.hypot(dx,dy));joy.x=dx/Math.max(55,len);joy.y=dy/Math.max(55,len);joyEl.firstElementChild.style.transform=`translate(${joy.x*32}px,${joy.y*32}px)`}
+const map=el('mapCanvas'),ctx=map.getContext('2d');function drawMap(){let w=map.width,h=map.height,cx=w/2,cy=h/2,scale=.19;ctx.clearRect(0,0,w,h);ctx.fillStyle='#172532';ctx.fillRect(0,0,w,h);ctx.strokeStyle='#647786';ctx.lineWidth=5;for(let v=-300;v<=300;v+=80){ctx.beginPath();ctx.moveTo(cx+v*scale,0);ctx.lineTo(cx+v*scale,h);ctx.stroke();ctx.beginPath();ctx.moveTo(0,cy+v*scale);ctx.lineTo(w,cy+v*scale);ctx.stroke()}function dot(o,c,r){let x=cx+(o.position.x-player.position.x)*scale,y=cy+(o.position.z-player.position.z)*scale;ctx.fillStyle=c;ctx.beginPath();ctx.arc(x,y,r,0,Math.PI*2);ctx.fill()}dot(car,'#ef4444',5);if(!jasonInCar)dot(jason,'#facc15',4);ctx.fillStyle='#4ade80';ctx.beginPath();ctx.arc(cx,cy,5,0,Math.PI*2);ctx.fill()}
+const clock=new THREE.Clock();function animate(){requestAnimationFrame(animate);let dt=Math.min(clock.getDelta(),.04),forward=(keys.w||keys.arrowup?1:0)-(keys.s||keys.arrowdown?1:0)-joy.y,turn=(keys.d||keys.arrowright?1:0)-(keys.a||keys.arrowleft?1:0)+joy.x;if(driving){yaw-=turn*dt*1.6;car.rotation.y=yaw;speed=THREE.MathUtils.damp(speed,forward*22,2.8,dt);car.position.x+=Math.sin(yaw)*speed*dt;car.position.z+=Math.cos(yaw)*speed*dt;player.position.copy(car.position);if(jasonInCar){jason.position.copy(car.position);jason.position.y=.55;jason.rotation.y=yaw}el('speed').textContent=Math.round(Math.abs(speed)*3)+' km/h'}else{let moving=Math.abs(forward)+Math.abs(turn)>.05;if(moving){let angle=Math.atan2(turn,forward||.0001);player.rotation.y=angle;player.position.x+=Math.sin(angle)*Math.abs(forward)*dt*7+turn*dt*2;player.position.z+=Math.cos(angle)*Math.abs(forward)*dt*7}player.position.y=Math.max(0,player.position.y-dt*3);el('speed').textContent='0 km/h';if(phoneOpen)phone.visible=true}if(!jasonInCar){let d=jason.position.distanceTo(player.position);if(d>3.2){let dir=player.position.clone().sub(jason.position).normalize();jason.position.add(dir.multiplyScalar(dt*2.4));jason.rotation.y=Math.atan2(dir.x,dir.z)}}let target=driving?car:player;if(cameraMode===0){let off=new
+ THREE.Vector3(0,8,14).applyAxisAngle(new THREE.Vector3(0,1,0),target.rotation.y);camera.position.lerp(target.position.clone().add(off),.12);camera.lookAt(target.position.clone().add(new THREE.Vector3(0,1.2,0)))}else{let off=new THREE.Vector3(0,2.4,-.1).applyAxisAngle(new THREE.Vector3(0,1,0),target.rotation.y);camera.position.lerp(target.position.clone().add(off),.18);camera.lookAt(target.position.clone().add(new THREE.Vector3(0,1.8,0)))}drawMap();renderer.render(scene,camera)}animate();el('loading').style.display='none';addEventListener('resize',()=>{camera.aspect=innerWidth/innerHeight;camera.updateProjectionMatrix();renderer.setSize(innerWidth,innerHeight)});
