@@ -1,41 +1,51 @@
-
 <!doctype html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
   <meta name="theme-color" content="#101827">
-  <title>NEEL - MIAMI UNDERWORLD V0.3</title>
+  <title>NEEL: MIAMI UNDERWORLD V0.4</title>
   <link rel="stylesheet" href="./style.css">
 </head>
 <body>
-  <div id="loading">Loading Miami...</div>
+  <div id="loading">Loading Miami V0.4...</div>
   <div id="errorBox" class="hidden"></div>
-
   <div id="hud">
-    <header>NEEL: MIAMI UNDERWORLD <span>V0.3</span></header>
-    <div class="mission">
-      <b>Cash: $<span id="cash">500</span></b><br>
-      <b>Mission 1: Meet Jason</b><br>
-      <small>Explore the expanded city with Jason.</small>
-    </div>
+    <header>NEEL: MIAMI UNDERWORLD <span>V0.4</span></header>
+    <div class="status"><b>FREE ROAM</b><br>Cash: $<span id="cash">500</span></div>
     <div id="speed">0 km/h</div>
     <canvas id="minimap" width="180" height="180"></canvas>
+    <div id="message">Explore Miami. Find the red car to drive.</div>
+    <div id="joystick"><div class="stick"></div></div>
+    <div class="lookHint">Swipe the open screen to look around</div>
     <div class="controls">
       <button id="jump">JUMP</button>
-      <button id="action">ACTION</button>
+      <button id="action">ENTER / EXIT</button>
       <button id="phone">PHONE</button>
       <button id="camera">CAM</button>
     </div>
-    <div id="phonePanel" class="hidden">
-      <b>NEEL'S PHONE</b>
-      <button id="closePhone">X</button>
-      <p>CONTACTS　　MISSIONS</p>
-      <p id="phoneText">GPS: Explore Miami and meet Jason.</p>
+    <div id="driveControls" class="hidden">
+      <div class="steering">
+        <button id="left">◀</button>
+        <button id="right">▶</button>
+      </div>
+      <div class="pedals">
+        <button id="accelerate">ACCEL</button>
+        <button id="reverse">REVERSE</button>
+        <button id="brake">BRAKE</button>
+      </div>
     </div>
-    <div id="message">Explore the city and find Jason.</div>
+    <div id="phonePanel" class="hidden">
+      <div class="phoneTop"><b>NEEL'S PHONE</b><button id="closePhone">✕</button></div>
+      <div class="phoneApps">
+        <button data-app="contacts">CONTACTS</button>
+        <button data-app="gps">GPS</button>
+        <button data-app="missions">MISSIONS</button>
+        <button data-app="settings">SETTINGS</button>
+      </div>
+      <div id="phoneContent">Welcome. Choose an app.</div>
+    </div>
   </div>
-
   <script type="module" src="./game.js"></script>
 </body>
 </html>
