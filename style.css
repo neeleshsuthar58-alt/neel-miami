@@ -1,2 +1,21 @@
-{box-sizing:border-box}html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#86c9e8;font-family:Arial,sans-serif;color:white}#gameCanvas{position:fixed;inset:0;z-index:0;display:block}#loading{position:fixed;z-index:5;inset:0;display:grid;place-items:center;background:#101827;color:white;font-size:22px}#hud{position:fixed;z-index:2;inset:0;pointer-events:none;text-shadow:0 1px 3px #111}header{padding:11px;background:#101827cc;font-size:14px;font-weight:bold}header span{float:right;color:#9ed9e8}.mission{margin:9px;padding:9px;width:max-content;max-width:72%;background:#101827cc;border-radius:9px;line-height:1.55}.mission strong{color:#ffd36a}#speed{position:absolute;right:10px;top:70px;background:#101827cc;padding:8px;border-radius:8px}#minimap{position:absolute;left:12px;bottom:12px;width:126px;height:126px;border:2px solid #fff;border-radius:9px;overflow:hidden;background:#172532;box-shadow:0 2px 8px #0008}#mapCanvas{width:100%;height:100%;display:block}.controls{position:absolute;right:10px;bottom:12px;display:grid;grid-template-columns:repeat(2,76px);gap:7px;pointer-events:auto}button{border:1px solid #ffffff88;background:#101827dd;color:white;border-radius:11px;padding:12px 6px;font-weight:bold}#phonePanel{position:absolute;right:10px;top:115px;width:210px;padding:13px;background:#101827ed;border-radius:12px;pointer-events:auto}#phonePanel button{float:right;padding:5px 9px}.hidden{display:none}#message{position:absolute;left:50%;bottom:150px;transform:translateX(-50%);background:#101827cc;padding:7px 10px;border-radius:8px;white-space:nowrap;font-size:11px;max-width:60vw;overflow:hidden;text-overflow:ellipsis}#joystick{position:absolute;z-index:3;left:14px;bottom:148px;width:112px;height:112px;border-radius:50%;background:#10182777;border:2px solid #ffffff88;display:grid;place-items:center;touch-action:none}#joystick div{width:47px;height:47px;border-radius:50%;background:#e9edf2cc;border:2px solid #333}@media(max-height:430px){#minimap{width:
-100px;height:100px}#joystick{width:92px;height:92px;bottom:118px}#joystick div{width:40px;height:40px}.controls{grid-template-columns:repeat(2,68px)}button{padding:9px 4px}#message{bottom:120px}}
+*{box-sizing:border-box}
+html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#86c9e8;font-family:Arial,sans-serif;touch-action:none}
+#gameCanvas{position:fixed;inset:0;width:100%;height:100%;display:block;z-index:0}
+#hud{position:fixed;inset:0;z-index:2;color:white;pointer-events:none;text-shadow:0 1px 3px #000}
+header{position:absolute;top:12px;left:12px;font-size:14px;font-weight:800;background:#111c;padding:9px 12px;border-radius:9px}
+header span{color:#ffd166}
+.mission{position:absolute;top:50px;left:12px;background:#111c;padding:9px 12px;border-radius:9px;font-size:12px;line-height:1.6}
+#speed{position:absolute;top:12px;right:12px;background:#111c;padding:9px 12px;border-radius:9px;font-weight:bold}
+#minimap{position:absolute;left:12px;bottom:14px;width:150px;height:150px;border:2px solid white;border-radius:12px;background:#172532;pointer-events:none}
+.controls{position:absolute;right:12px;bottom:18px;display:grid;grid-template-columns:repeat(2,78px);gap:9px;pointer-events:auto}
+button{border:1px solid #ffffff99;border-radius:12px;background:#182333dd;color:white;font-weight:bold;padding:13px 8px;min-height:44px}
+button:active{background:#386b9c}
+#phonePanel{position:absolute;right:12px;top:82px;width:190px;min-height:150px;background:#101827ee;border:1px solid #ffffff88;border-radius:14px;padding:14px;pointer-events:auto;font-size:13px}
+#phonePanel button{float:right;padding:5px 9px;min-height:28px}
+#message{position:absolute;left:50%;bottom:178px;transform:translateX(-50%);background:#111c;padding:8px 12px;border-radius:9px;font-size:12px;white-space:nowrap;max-width:90%;overflow:hidden}
+.hidden{display:none!important}
+#loading,#errorBox{position:fixed;z-index:10;left:50%;top:45%;transform:translate(-50%,-50%);padding:18px 20px;border-radius:12px;background:#101827;color:white;text-align:center;width:min(90%,360px);font-weight:bold}
+#errorBox{background:#5b1720;color:#fff;white-space:pre-wrap;font-size:13px;line-height:1.5}
+#joystick{position:fixed;z-index:3;left:18px;bottom:185px;width:112px;height:112px;border-radius:50%;background:#10182766;border:2px solid #ffffff99;touch-action:none}
+#joystick>div{position:absolute;left:31px;top:31px;width:46px;height:46px;border-radius:50%;background:#ffffffbb;border:2px solid #24364a}
+@media(max-height:520px){#minimap{width:110px;height:110px}#joystick{width:90px;height:90px;bottom:135px}#joystick>div{left:24px;top:24px}#message{bottom:130px}}
